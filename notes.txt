@@ -1,0 +1,385 @@
+
+/-------------------------------------------------------------------------------\
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                  Tadhg-doku                                   |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+\-------------------------------------------------------------------------------/
+
+/-------------------------------------------------------------------------------\
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                  Tadhg-doku                                   |
+|                                                                               |
+|                                  -> Easy                                      |
+|                                     Medium                                    |
+|                                     Hard                                      |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+|q - quit       arrows - navigate       enter - select                          |
+\-------------------------------------------------------------------------------/
+
+/-------------------------------------------------------------------------------\
+|Tadhg-doku                          Easy                                       |
+|                                    07:22                                      |
+|                                                                               |
+|                                                                               |
+|                                                                               |
+                                   .       .
+                             1 2 3 | 4 5 6 | 7 8 9
+                             4 5 6 | 7 8 9 | 1 2 3
+                             7 8 9 | 1 2 3 | 4 5 6
+                            -------+-------+-------
+                             9 1 2 | 3 4 5 | 6 7 8
+                             3 4 5 | 6 7 8 | 9 1 2
+                             6 7 8 | 9 1 2 | 3 4 5
+                            -------+-------+-------
+                             8 9 1 | 2 3 4 | 5 6 7
+                             2 3 4 | 5 6 7 | 8 9 1
+                             5 6 7 | 8 9 1 | 2 3 4
+                                   '       '
+|                                                                               |
+|arrows - navigate                                                              |
+|h - hint; is any user-entered number inconsistent with answer board            |
+|n - enter note mode (dubious at this size - would show note under selection)   |
+|q - quit      esc / p - pause                                                  |
+\-------------------------------------------------------------------------------/
+set numbers - are in primary color
+user-entered numbers - are in blue
+user entered number that breaks rule - inverted primary color, red highlight
+empty spot - tbd
+selected spot on board - if set number - half highlight?
+                       - if user-entered number - highlight, keep blue
+                       - if empty - highlight
+other numbers that match selected number - highlight of some sort
+should user be able to highlight all 8s without having to be over a given 8?
+ie - you click a number to be 'in that number's mode' and then press enter over
+a spot to set that spot to that number?
+
+arguments to renderer:
+board state: set numbers, filled in numbers, at some point, notes per square, difficulty, timer, error state per square
+interaction state: cursor location on board, selected number
+
+sudoku instance is given size of terminal as render arg
+
+height-constrained:
+--
+ 1 2 3 | 4 5 6 | 7 8 9   Tadhg-doku
+ 4 5 6 | 7 8 9 | 1 2 3   Easy 15:15
+_7_8_9_|_1_2_3_|_4_5_6_  (can also underline with style)
+ 9 1 2 | 3 4 5 | 6 7 8
+ 3 4 5 | 6 7 8 | 9 1 2
+_6_7_8_|_9_1_2_|_3_4_5_
+ 8 9 1 | 2 3 4 | 5 6 7
+ 2 3 4 | 5 6 7 | 8 9 1
+ 5 6 7 | 8 9 1 | 2 3 4
+--
+
+(9 tall)
+
+width-constrained
+
+Tadhg-doku
+Easy
+15:15
+
+   .   .
+123|456|789
+456|789|123
+789|123|456
+---+---+---
+912|345|678
+345|678|912
+678|912|345
+---+---+---
+891|234|567
+234|567|891
+567|891|234
+   '   '
+
+(10 wide)
+
+
+both
+
+123.456.789
+456.789.123
+789,123,456
+912'345'678
+345.678.912
+678,912,345
+891'234'567
+234.567.891
+567.891.234
+
+
+       |       |
+ 1 2 3 | 4 5 6 | 7 8 9
+ 4 5 6 | 7 8 9 | 1 2 3
+ 7 8 9 | 1 2 3 | 4 5 6
+-------+-------+-------
+ 9 1 2 | 3 4 5 | 6 7 8
+ 3 4 5 | 6 7 8 | 9 1 2
+ 6 7 8 | 9 1 2 | 3 4 5
+-------+-------+-------
+ 8 9 1 | 2 3 4 | 5 6 7
+ 2 3 4 | 5 6 7 | 8 9 1
+ 5 6 7 | 8 9 1 | 2 3 4
+       |       |
+
+      .       .       | 1 2   .  --.  .       |   --  .  .-.  .  .-,
+4     . 4     .     6 |       .   /   .       |  /_,  .  `-/  .   -.
+      .       .       |       .  /    .       |  __/  .   /   .  ._/
+                      |                       |
+      .       .       |   2   .  .-,  .  .-.  |  ,|   .   /,  .  --.
+      .   5   .   5 6 |       .   -.  .  `-/  |   |   .  /_|  .   /
+      .       .       |       .  ._/  .   /   |  _|_  .    |  .  /
+                      |                       |
+      .       .  .-,  | 1     .   /|  .       |  ,-,  .   /   .  ;-;
+      .       .   -.  |   5   .  /_|  .   5   |   /   .  /-.  .  ;.;
+      .       .  ._/  |       .    |  .       |  /__  .  \_/  .  :_:
+---------------------------------------------------------------------
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+                      |                       |
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+                      |                       |
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+---------------------------------------------------------------------
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+                      |                       |
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+                      |                       |
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3 | 1 2 3 . 1 2 3 . 1 2 3
+
+n - toggle note mode     arrow keys - navigate      q - quit
+
+when playing on this huge board - could
+1 | 2 | 3
+----------
+4 | 5 | 6
+----------
+7 | 8 | 9
+this be the quick way to go into a section and then select a spot within the section?
+
+
+1-9 made up of ascii in 3x3 size
+
+good chars: / \ | - _ , . ' `
+other:      :
+
+scale worst to best: meh -> ok -> good
+
+    /|
+     |      good
+    _|_
+
+    ,-,
+     /      good
+    /__
+
+    .-,
+     -.     good
+    ._/
+
+     /|
+    /_|     good
+      |
+
+     --
+    /_,     ok
+    __/
+
+     /
+    /-.     good
+    \_/
+
+    --.
+     /      good
+    /
+
+    ,-,
+    |_|     bad looks off a bit thin
+    |_|
+
+    /`\
+    \_/     awful
+    (_)
+
+     _
+    (_)     small
+    (_)
+
+    .-.
+    |-|     small
+    `-'
+
+    .-.
+    |_|     bottom heavy
+    \_/
+
+    .-.
+    +-+     less like an 8 somehow
+    `-'
+
+    ,-,
+    /-/     worse, not an 8
+    `_'
+
+     _
+    /_/     out of bounds
+   /_/
+
+     _
+    /_/     not terrible
+    /_/
+
+     _.
+    /_/     a little more rounded off but short?
+    /_/
+
+    ,-,
+    /_/     making taller
+    /_/
+
+    ,",
+    ,-'     making even taller but thin
+    '_'
+
+
+
+
+    ,-.
+    `-/     very nice but short
+     /
+
+    ,^.
+    `-/     making taller
+     /
+
+    /'l
+    `-/     shapes and sorts
+     /
+
+    /"\
+    `-/     good
+     /
+
+
+
+
+
+     __
+    /_,     short
+    __/
+
+    ,--
+    `..     bad
+    ._/
+
+    ___
+    |_.     better but now short
+    __/
+
+    r--
+    '_.     ok
+    __/
+
+    +--
+    |__     rob likes
+    __/
+
+    +--
+    |_.     a little different
+    __/
+
+    r--
+    |_.     progress?
+    __/
+
+    r--
+    l_,     more letters being used...
+    __/
+
+    i--
+    l_,     more letters being used...
+    __/
+
+    r--
+    j_,     more letters being used...
+    __/
+
+    f--
+    j_,     more letters being used...
+    __/
+
+    r--
+    j_,     more letters being used...
+    __/
+
+    +--
+    /_,     forward slash works better
+    __/
+
+    +--
+    /_.     is . better?
+    __/
+
+     --
+    /_,     was picked but replaced with "progress?"
+    __/
+
+
+
+minimap idea for sudoku
+instead of making a giant display that goes past 80chars, "zoom" in to one?
+
+  x |   |
+ ---+---+---
+    |   |
+ ---+---+---
+    |   |
+
