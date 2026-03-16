@@ -10,6 +10,9 @@ import (
 const boardSizeGeneric int = 9
 const boardWidth int = boardSizeGeneric
 const boardHeight int = boardSizeGeneric
+const boardBlockCount int = boardSizeGeneric
+const blockHeight = 3
+const blockWidth = 3
 
 const cursorHorizMin int = 0
 const cursorHorizMax int = boardWidth
@@ -19,15 +22,31 @@ const cursorVertMax int = boardHeight
 const perSquareMin int = 0
 const perSquareMax int = 9
 
-const blockHeight = 3
-const blockWidth = 3
+const numberOfPossibleDigits int = perSquareMax - perSquareMin
+
+type CellDigit int
+
+const blankDigitInt int = 0
+const blankDigit CellDigit = CellDigit(blankDigitInt)
+
+func IsValidCellDigit(input int) bool {
+	return input <= perSquareMax && input >= perSquareMin
+}
+
+func CastCellDigit(input int) CellDigit {
+	if IsValidCellDigit(input) {
+		return CellDigit(input)
+	}
+	// error
+	return CellDigit(0)
+}
 
 type BoardGridErrors struct {
 	board [boardHeight][boardWidth]bool
 }
 
 type BoardGridNotes struct {
-	board [boardHeight][boardWidth][(perSquareMax - perSquareMin)]int
+	board [boardHeight][boardWidth][numberOfPossibleDigits]int
 }
 
 type BoardGrid struct {
@@ -150,6 +169,15 @@ type SudokuBoard struct {
 	userEntries    BoardGrid
 	invalidEntries BoardGridErrors
 	userNotes      BoardGridNotes
+
+	// number of 1s, 2s, 3s, ... present in each row
+	numberOfDigitsPerRow [boardHeight][numberOfPossibleDigits]int
+	// number of 1s, 2s, 3s, ... present in each col
+	numberOfDigitsPerCol [boardWidth][numberOfPossibleDigits]int
+	// number of 1s, 2s, 3s, ... present in each square
+	numberOfDigitsPerSquare [boardBlockCount][numberOfPossibleDigits]int
+	// number of 1s, 2s, 3s, ... present on board
+	numberOfDigitsTotal [numberOfPossibleDigits]int
 }
 
 type BoardPosition struct {
@@ -316,11 +344,35 @@ func internalGenerateSudokuBoard(difficulty string) BoardGrid {
 }
 
 func GenerateSudokuBoard(difficulty string) SudokuBoard {
+	givenBoard := internalGenerateSudokuBoard(difficulty)
+
+	var numberOfDigitsPerRow [boardHeight][numberOfPossibleDigits]int
+	var numberOfDigitsPerCol [boardWidth][numberOfPossibleDigits]int
+	var numberOfDigitsPerSquare [boardBlockCount][numberOfPossibleDigits]int
+	var numberOfDigitsTotal [numberOfPossibleDigits]int
+	for rowIndex := 0; rowIndex < boardHeight; rowIndex++ {
+		for colIndex := 0; colIndex < boardWidth; colIndex++ {
+			squareIndex := ((rowIndex / 3) * 3) + (colIndex / 3)
+			cDigit := givenBoard.GetValueAt(BoardPosition{vert: rowIndex, horiz: colIndex})
+			numberIndex := cDigit - 1
+			if numberIndex >= 0 {
+				numberOfDigitsPerRow[rowIndex][numberIndex]++
+				numberOfDigitsPerCol[colIndex][numberIndex]++
+				numberOfDigitsPerSquare[squareIndex][numberIndex]++
+				numberOfDigitsTotal[numberIndex]++
+			}
+		}
+	}
+
 	return SudokuBoard{
-		givenBoard:     internalGenerateSudokuBoard(difficulty),
-		userEntries:    internalGenerateBlankSudokuBoard(),
-		invalidEntries: internalGenerateBlankSudokuBoardErrors(),
-		userNotes:      internalGenerateBlankSudokuBoardNotes(),
+		givenBoard:              givenBoard,
+		userEntries:             internalGenerateBlankSudokuBoard(),
+		invalidEntries:          internalGenerateBlankSudokuBoardErrors(),
+		userNotes:               internalGenerateBlankSudokuBoardNotes(),
+		numberOfDigitsPerRow:    numberOfDigitsPerRow,
+		numberOfDigitsPerCol:    numberOfDigitsPerCol,
+		numberOfDigitsPerSquare: numberOfDigitsPerSquare,
+		numberOfDigitsTotal:     numberOfDigitsTotal,
 	}
 }
 
@@ -534,11 +586,12 @@ func RenderSudokuBoardState(state SudokuBoardInteractionState, style lipgloss.St
 	if displayBottomNumberCount {
 		result += "\n"
 		result += "   "
-		for number := (perSquareMin + 1); number <= perSquareMax; number++ {
+		for numberIndex := (perSquareMin); numberIndex < perSquareMax; numberIndex++ {
+			number := numberIndex + 1
 			numbStr := strconv.Itoa(number)
-			thisNumberFinished := false
+			thisNumberFinished := board.numberOfDigitsTotal[numberIndex] >= 9
 			numbStrRendered := "x"
-			if thisNumberFinished || number == 4 {
+			if thisNumberFinished {
 				numbStrRendered = tertiaryForeground.Render(numbStr)
 			} else {
 				numbStrRendered = secondaryForeground.Render(numbStr)
@@ -623,6 +676,7 @@ func (board *SudokuBoardInteractionState) CheckForErrorsForMove(existingValue in
 	// get new value
 	fmt.Print(fmt.Sprintf("Switching from %d to %d\n", existingValue, newValue))
 	if newValue == existingValue {
+		// really shouldn't be getting this
 		fmt.Println("No change, not checking for errors")
 		return // no change
 	} else {
@@ -851,9 +905,24 @@ func (board *SudokuBoardInteractionState) SetNumberAtCursor(input int) {
 	if board.board.givenBoard.GetValueAt(board.cursor) != 0 {
 		return
 	}
+	// check if it's the same as the cursor. don't do any logic for 'change 3 to 3'
+	if board.board.userEntries.GetValueAt(board.cursor) == input {
+		return
+	}
+
 	prevInput := board.board.userEntries.GetValueAt(board.cursor)
 	board.board.userEntries.setNumberAtPos(input, board.cursor, board.toggle)
 	board.CheckForErrorsForMove(prevInput, input, board.cursor)
+
+	numberIndex := input - 1
+	if numberIndex >= 0 {
+		board.board.numberOfDigitsTotal[numberIndex]++
+	}
+
+	prevNumberIndex := prevInput - 1
+	if prevNumberIndex >= 0 {
+		board.board.numberOfDigitsTotal[prevNumberIndex]--
+	}
 }
 
 func (board *SudokuBoardInteractionState) MoveCursorLeft() {
