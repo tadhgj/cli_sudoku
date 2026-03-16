@@ -1,4 +1,26 @@
 
+For decades, the terminal window has represented professionalism and productivity.
+It was a tool that got things done. It was the best way to focus, a no-distraction zone.
+But we weren't happy with the status quo.
+Today, everything changes. Today, the terminal window gains a whole new meaning.
+
+We're bringing classic time-wasters to your terminal, beginning with Sudoku.
+
+No longer is your phone your time-wasting machine. Today, the terminal takes over.
+
+We've spent time ensuring that it's faster to launch a terminal window
+than it is to fish your phone out of your pocket.
+
+With stunning 4-bit color, these graphics sure are graphics,
+And with no mouse support, you'll be glued to your keyboard.
+
+But we know that you're busy, and you have other responsibilites
+
+In the coming months, we'll be launching other classics such as
+- minesweeper
+- blackjack
+
+
 /-------------------------------------------------------------------------------\
 |                                                                               |
 |                                                                               |
