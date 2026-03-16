@@ -651,7 +651,7 @@ func (board *SudokuBoardInteractionState) CheckForErrorsForMove(existingValue in
 
 			// clear board of errors for this number
 			for boardIndex := 0; boardIndex < (boardWidth * boardHeight); boardIndex++ {
-				cPos := BoardPosition{vert: boardIndex / boardWidth, horiz: boardIndex % boardWidth}
+				cPos := BoardPosition{vert: (boardIndex / boardWidth), horiz: (boardIndex % boardWidth)}
 				if board.board.userEntries.GetValueAt(cPos) == valueToCheck || board.board.userEntries.GetValueAt(cPos) == 0 {
 					board.board.invalidEntries.SetValueAt(cPos, false)
 				}
@@ -720,7 +720,7 @@ func (board *SudokuBoardInteractionState) CheckForErrorsForMove(existingValue in
 									horiz: (squareOffsetHoriz * 3) + (squareIndex2 % 3),
 									vert:  (squareOffsetVert * 3) + (squareIndex2 / 3),
 								}
-								if board.board.userEntries.GetValueAt(cPos2) != 0 {
+								if board.board.userEntries.GetValueAt(cPos2) == valueToCheck {
 									board.board.invalidEntries.SetValueAt(cPos2, true)
 								}
 							}
@@ -835,7 +835,7 @@ func (board *SudokuBoardInteractionState) CheckForErrorsForMove(existingValue in
 							horiz: (squareOffsetHoriz * 3) + (squareIndex2 % 3),
 							vert:  (squareOffsetVert * 3) + (squareIndex2 / 3),
 						}
-						if board.board.userEntries.GetValueAt(cPos2) != 0 {
+						if board.board.userEntries.GetValueAt(cPos2) == valueToCheck {
 							board.board.invalidEntries.SetValueAt(cPos2, true)
 						}
 					}
