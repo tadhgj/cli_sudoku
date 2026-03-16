@@ -101,6 +101,7 @@ func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 		width:      pty.Window.Width,
 		height:     pty.Window.Height,
 		style:      lipgloss.NewStyle(),
+		bg:         "light", // default
 		boardState: GenerateSudokuBoardState(""),
 		quitStyle:  lipgloss.NewStyle().Foreground(lipgloss.Color("8")),
 	}
@@ -114,6 +115,7 @@ type model struct {
 	width      int
 	height     int
 	style      lipgloss.Style
+	bg         string
 	boardState SudokuBoardInteractionState
 	quitStyle  lipgloss.Style
 }
@@ -133,7 +135,12 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-
+	case tea.BackgroundColorMsg:
+		if msg.IsDark() {
+			m.bg = "dark"
+		} else {
+			m.bg = "light"
+		}
 	case tea.WindowSizeMsg:
 		m.height = msg.Height
 		m.width = msg.Width
@@ -191,7 +198,7 @@ func (m model) View() tea.View {
 	// outStr += randIntStr + "\n"
 
 	// print board
-	outStr += RenderSudokuBoardState(m.boardState, m.style)
+	outStr += RenderSudokuBoardState(m.boardState, m.style, m.bg)
 
 	outStr += "\n"
 
