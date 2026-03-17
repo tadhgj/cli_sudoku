@@ -703,6 +703,9 @@ func (board *SudokuBoardInteractionState) CheckForErrorsForMove(existingValue in
 			fmt.Print("Need to check what errors are left after removing: ")
 			fmt.Println(valueToCheck)
 
+			// clear error at position (since we have removed the number, the script below will not remove it)
+			board.board.invalidEntries.SetValueAt(at, false)
+
 			// clear board of errors for this number
 			for boardIndex := 0; boardIndex < (boardWidth * boardHeight); boardIndex++ {
 				cPos := BoardPosition{vert: (boardIndex / boardWidth), horiz: (boardIndex % boardWidth)}
