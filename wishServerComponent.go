@@ -100,8 +100,7 @@ func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 		term:       pty.Term,
 		width:      pty.Window.Width,
 		height:     pty.Window.Height,
-		style:      lipgloss.NewStyle(),
-		bg:         "light", // default
+		styles:     newStyles(true), // assume dark terminal
 		boardState: GenerateSudokuBoardState(""),
 		quitStyle:  lipgloss.NewStyle().Foreground(lipgloss.Color("8")),
 	}
@@ -114,8 +113,7 @@ type model struct {
 	term       string
 	width      int
 	height     int
-	style      lipgloss.Style
-	bg         string
+	styles     styles
 	boardState SudokuBoardInteractionState
 	quitStyle  lipgloss.Style
 }
@@ -133,14 +131,102 @@ func (m model) Init() tea.Cmd {
 	)
 }
 
+type styles struct {
+	primary             lipgloss.Style
+	secondary           lipgloss.Style
+	tertiary            lipgloss.Style
+	accent              lipgloss.Style
+	errorForeground     lipgloss.Style
+	invertHighlight     lipgloss.Style
+	primaryInvert       lipgloss.Style
+	secondaryInvert     lipgloss.Style
+	tertiaryInvert      lipgloss.Style
+	accentInvert        lipgloss.Style
+	errorInvert         lipgloss.Style
+	lightHighlight      lipgloss.Style
+	darkHighlight       lipgloss.Style
+	errorHighlightUser  lipgloss.Style
+	errorHighlightGiven lipgloss.Style
+}
+
+func newStyles(bgIsDark bool) styles {
+
+	fmt.Println("newStyles called: is dark? ")
+	fmt.Println(bgIsDark)
+
+	lightDark := lipgloss.LightDark(!bgIsDark)
+
+	return styles{
+		primary: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#ddd"), // on dark background
+			lipgloss.Color("#000"), // on light background
+		)),
+		secondary: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#bbb"),
+			lipgloss.Color("#555"),
+		)),
+		tertiary: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#555"),
+			lipgloss.Color("#ccc"),
+		)),
+		accent: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#77f"),
+			lipgloss.Color("#33f"),
+		)),
+		errorForeground: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#f00"),
+			lipgloss.Color("#f00"),
+		)),
+		invertHighlight: lipgloss.NewStyle().Background(lightDark(
+			lipgloss.Color("#fff"),
+			lipgloss.Color("#000"),
+		)),
+		primaryInvert: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#000"),
+			lipgloss.Color("#fff"),
+		)),
+		secondaryInvert: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#555"),
+			lipgloss.Color("#bbb"),
+		)),
+		tertiaryInvert: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#ccc"),
+			lipgloss.Color("#555"),
+		)),
+		accentInvert: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#33f"),
+			lipgloss.Color("#77f"),
+		)),
+		errorInvert: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#f00"),
+			lipgloss.Color("#f00"),
+		)),
+		lightHighlight: lipgloss.NewStyle().Background(lightDark(
+			lipgloss.Color("#333"),
+			lipgloss.Color("#efefef"),
+		)),
+		darkHighlight: lipgloss.NewStyle().Background(lightDark(
+			lipgloss.Color("#777"),
+			lipgloss.Color("#bbb"),
+		)),
+		errorHighlightGiven: lipgloss.NewStyle().Background(lightDark(
+			lipgloss.Color("#f00"),
+			lipgloss.Color("#f00"),
+		)),
+		errorHighlightUser: lipgloss.NewStyle().Background(lightDark(
+			lipgloss.Color("#f00"),
+			lipgloss.Color("#f00"),
+		)).Foreground(lightDark(
+			lipgloss.Color("#900"),
+			lipgloss.Color("#900"),
+		)),
+	}
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.BackgroundColorMsg:
-		if msg.IsDark() {
-			m.bg = "dark"
-		} else {
-			m.bg = "light"
-		}
+		m.styles = newStyles(msg.IsDark())
 	case tea.WindowSizeMsg:
 		m.height = msg.Height
 		m.width = msg.Width
@@ -198,7 +284,7 @@ func (m model) View() tea.View {
 	// outStr += randIntStr + "\n"
 
 	// print board
-	outStr += RenderSudokuBoardState(m.boardState, m.style, m.bg)
+	outStr += RenderSudokuBoardState(m.boardState, m.styles)
 
 	outStr += "\n"
 

@@ -388,111 +388,46 @@ func GenerateSudokuBoardState(difficulty string) SudokuBoardInteractionState {
 	}
 }
 
-func RenderSudokuBoardState(state SudokuBoardInteractionState, style lipgloss.Style, bg string) string {
+func RenderSudokuBoardState(state SudokuBoardInteractionState, styles styles) string {
 
-	// lockedNumberStyle := style.Foreground(lipgloss.Color("#000"))
-	// userNumberStyle := style.Foreground(lipgloss.Color("#00f"))
-	// blankStyle := style.Foreground(lipgloss.Color("#ccc"))
-	// types of numbers:
-	// given numbers (primary)
-	primaryForeground := style.Foreground(lipgloss.Color("#000"))
-	invertPrimaryForeground := style.Foreground(lipgloss.Color("#fff"))
-
-	secondaryForeground := style.Foreground(lipgloss.Color("#555"))
-	// user numbers (accent)
-	accentForeground := style.Foreground(lipgloss.Color("#00f"))
-	invertAccentForeground := style.Foreground(lipgloss.Color("#aaf"))
-	// user numbers that violate rules (error, bold)
-	errorForeground := style.Foreground(lipgloss.Color("#f00")).Bold(true)
-	invertErrorForeground := style.Foreground(lipgloss.Color("#f00"))
-	// blank numbers (tertiary)
-	tertiaryForeground := style.Foreground(lipgloss.Color("#ccc"))
-	invertTertiaryForeground := style.Foreground(lipgloss.Color("#ccc"))
-
-	// types of highlights:
-	// under cursor (black highlight)
-	invertHighlight := style.Background(lipgloss.Color("#000"))
-	// - if given number, use opposite color scheme primary color
-	// - if user number, use opposite color scheme accent color
-	// - - if isErroneousUserNumber, use accent
-	// - if blank number, use opposite color scheme tertiary color
-
-	// same row/col as cursor (light highlight)
-	lightHighlight := style.Background(lipgloss.Color("#eee"))
-	// same row/col as cursor AND same number as number under cursor (causing error, red highlight)
-	// errorHighlight := style.Background(lipgloss.Color("#000"))
-	// same square as cursor AND same number as number under cursor (causing error, red highlight)
-	// same number as number under cursor (dark highlight)
-	darkHighlight := style.Background(lipgloss.Color("#aaa"))
-	// IF LIGHT MODE
-	if bg == "light" {
-		primaryForeground = style.Foreground(lipgloss.Color("#000"))
-		invertPrimaryForeground = style.Foreground(lipgloss.Color("#fff"))
-		secondaryForeground = style.Foreground(lipgloss.Color("#555"))
-		accentForeground = style.Foreground(lipgloss.Color("#00f"))
-		invertAccentForeground = style.Foreground(lipgloss.Color("#aaf"))
-		errorForeground = style.Foreground(lipgloss.Color("#f00")).Bold(true)
-		invertErrorForeground = style.Foreground(lipgloss.Color("#f00"))
-		tertiaryForeground = style.Foreground(lipgloss.Color("#ccc"))
-		invertTertiaryForeground = style.Foreground(lipgloss.Color("#ccc"))
-
-		// types of highlights:
-		invertHighlight = style.Background(lipgloss.Color("#000"))
-		lightHighlight = style.Background(lipgloss.Color("#eee"))
-		darkHighlight = style.Background(lipgloss.Color("#aaa"))
-
-	} else if bg == "dark" {
-		primaryForeground = style.Foreground(lipgloss.Color("#fff"))
-		invertPrimaryForeground = style.Foreground(lipgloss.Color("#000"))
-		secondaryForeground = style.Foreground(lipgloss.Color("#bbb"))
-		accentForeground = style.Foreground(lipgloss.Color("#55f"))
-		invertAccentForeground = style.Foreground(lipgloss.Color("#33f"))
-		errorForeground = style.Foreground(lipgloss.Color("#f00")).Bold(true)
-		invertErrorForeground = style.Foreground(lipgloss.Color("#f00"))
-		tertiaryForeground = style.Foreground(lipgloss.Color("#555"))
-		invertTertiaryForeground = style.Foreground(lipgloss.Color("#666"))
-
-		// types of highlights:
-		invertHighlight = style.Background(lipgloss.Color("#fff"))
-		lightHighlight = style.Background(lipgloss.Color("#333"))
-		darkHighlight = style.Background(lipgloss.Color("#777"))
-	} else {
-		// unhandled
-	}
+	// in a console, some of the most basic and available styling you have available includes:
+	// underline
+	// highlighting
+	// a 'light' text color
 
 	board := state.board
 	cursor := state.cursor
 
 	// get number under cursor
-	var cursorSelectedNum int
-	if board.givenBoard.GetValueAt(cursor) != 0 {
-		cursorSelectedNum = board.givenBoard.GetValueAt(cursor)
-	} else if board.userEntries.GetValueAt(cursor) != 0 {
-		cursorSelectedNum = board.userEntries.GetValueAt(cursor)
-	} else {
+	cursorSelectedNum := board.GetAnyValueAt(cursor)
+	if cursorSelectedNum == blankDigitInt {
 		cursorSelectedNum = -1 // set to -1 so it doesn't match empty value of 0
 	}
 
 	var result string
-	// top
+
+	// top decoration
 	result += "       ,       ,       \n"
+
+	// for each row...
 	for i := 0; i < boardHeight; i++ {
 		isSameRowAsCursor := i == cursor.vert
 
-		// spacer
+		// spacer at beginning of row
 		result += " "
 
+		// for each item in row...
 		for j := 0; j < boardWidth; j++ {
 
 			cPos := BoardPosition{horiz: j, vert: i}
 
-			numberUnderCursor := board.GetAnyValueAt(cPos)
-			isEmpty := numberUnderCursor == 0
+			cNumValue := board.GetAnyValueAt(cPos)
+			isEmpty := cNumValue == blankDigitInt
 			var currentChar string
 			if isEmpty {
-				currentChar = "."
+				currentChar = " "
 			} else {
-				currentChar = strconv.Itoa(numberUnderCursor)
+				currentChar = strconv.Itoa(cNumValue)
 			}
 
 			isSameColumnAsCursor := cPos.horiz == cursor.horiz
@@ -505,18 +440,18 @@ func RenderSudokuBoardState(state SudokuBoardInteractionState, style lipgloss.St
 			// IF DARK MODE
 
 			// look at given board
-			currentNumForegroundStyle := tertiaryForeground
-			currentNumInvertedForegroundStyle := invertTertiaryForeground
+			currentNumForegroundStyle := styles.tertiary
+			currentNumInvertedForegroundStyle := styles.tertiary
 			if isEmpty {
 				// blank
 			} else if board.givenBoard.GetValueAt(cPos) != 0 {
 				// 'locked' number
-				currentNumForegroundStyle = primaryForeground
-				currentNumInvertedForegroundStyle = invertPrimaryForeground
+				currentNumForegroundStyle = styles.primary
+				currentNumInvertedForegroundStyle = styles.primaryInvert
 			} else if board.userEntries.GetValueAt(cPos) != 0 {
 				// user generated number
-				currentNumForegroundStyle = accentForeground
-				currentNumInvertedForegroundStyle = invertAccentForeground
+				currentNumForegroundStyle = styles.accent
+				currentNumInvertedForegroundStyle = styles.accentInvert
 				// currentNumIsUserEntered = true
 			}
 
@@ -526,30 +461,31 @@ func RenderSudokuBoardState(state SudokuBoardInteractionState, style lipgloss.St
 			// numberSelected
 			if isUnderCursor {
 				if isErroneousUserNumber {
-					result += invertHighlight.Render(invertErrorForeground.Render(currentChar))
+					result += styles.invertHighlight.Render(styles.errorInvert.Render(currentChar))
 				} else {
-					result += invertHighlight.Render(currentNumInvertedForegroundStyle.Render(currentChar))
+					result += styles.invertHighlight.Render(currentNumInvertedForegroundStyle.Render(currentChar))
 				}
-			} else if numberUnderCursor == cursorSelectedNum {
+			} else if cNumValue == cursorSelectedNum {
 				matchingCausingError := (isErroneousUserNumber || (isSameColumnAsCursor || isSameRowAsCursor) || isSameSquareAsCursor)
 				if matchingCausingError {
-					if isSameColumnAsCursor || isSameRowAsCursor {
-						result += style.Background(lipgloss.Color("#f00")).Foreground(lipgloss.Color("#900")).Render(currentChar)
+					if isErroneousUserNumber {
+						result += styles.errorHighlightUser.Render(currentChar)
+						// result += style.Background(lipgloss.Color("#f00")).Foreground(lipgloss.Color("#900")).Render(currentChar)
 					} else {
-						result += style.Background(lipgloss.Color("#f00")).Render(currentChar)
+						result += styles.errorHighlightGiven.Render(currentChar)
 					}
 				} else {
-					result += darkHighlight.Render(currentChar)
+					result += styles.darkHighlight.Render(currentChar)
 				}
 			} else if isSameColumnAsCursor || isSameRowAsCursor || isSameSquareAsCursor {
 				if isErroneousUserNumber {
-					result += lightHighlight.Render(errorForeground.Render(currentChar))
+					result += styles.lightHighlight.Render(styles.errorForeground.Render(currentChar))
 				} else {
-					result += lightHighlight.Render(currentNumForegroundStyle.Render(currentChar))
+					result += styles.lightHighlight.Render(currentNumForegroundStyle.Render(currentChar))
 				}
 			} else {
 				if isErroneousUserNumber {
-					result += errorForeground.Render(currentChar)
+					result += styles.errorForeground.Render(currentChar)
 				} else {
 					result += currentNumForegroundStyle.Render(currentChar)
 				}
@@ -560,7 +496,7 @@ func RenderSudokuBoardState(state SudokuBoardInteractionState, style lipgloss.St
 				if j%3 == 2 {
 					result += " | "
 				} else if isSameRowAsCursor || isSameSquareAsCursor {
-					result += lightHighlight.Render(" ")
+					result += styles.lightHighlight.Render(" ")
 				} else {
 					result += " "
 				}
@@ -589,12 +525,15 @@ func RenderSudokuBoardState(state SudokuBoardInteractionState, style lipgloss.St
 		for numberIndex := (perSquareMin); numberIndex < perSquareMax; numberIndex++ {
 			number := numberIndex + 1
 			numbStr := strconv.Itoa(number)
+			if cursorSelectedNum == number {
+				numbStr = lipgloss.NewStyle().Underline(true).Render(numbStr)
+			}
 			thisNumberFinished := board.numberOfDigitsTotal[numberIndex] >= 9
-			numbStrRendered := "x"
+			numbStrRendered := numbStr
 			if thisNumberFinished {
-				numbStrRendered = tertiaryForeground.Render(numbStr)
+				numbStrRendered = styles.tertiary.Render(numbStr)
 			} else {
-				numbStrRendered = secondaryForeground.Render(numbStr)
+				numbStrRendered = styles.secondary.Render(numbStr)
 			}
 			result += numbStrRendered + " "
 		}
