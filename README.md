@@ -12,4 +12,4 @@ download things
 
 run
 
-`go run ./*.go`
+`go run .`
