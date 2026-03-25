@@ -14,7 +14,6 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
 	"charm.land/log/v2"
 	"charm.land/wish/v2"
 	"charm.land/wish/v2/activeterm"
@@ -44,6 +43,9 @@ func main() {
 		// wish.WithPasswordAuth(func(ctx ssh.Context, password string) bool {
 		// 	return password == "asd123"
 		// }),
+		wish.WithPublicKeyAuth(func(ctx ssh.Context, key ssh.PublicKey) bool {
+			return key.Type() == "ssh-ed25519"
+		}),
 
 		// actually, no, what I want is public key auth.
 		// your public key will be stored in a sqlite table matched to a user uuid
@@ -96,13 +98,19 @@ func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 
 	pty, _, _ := s.Pty()
 
+	// deal with the ssh key here
+	yourKey := string(s.PublicKey().Marshal()[:])
+	fmt.Println(yourKey)
+
+	iden := SSHIdentity{
+		sshKeyMarshalled: yourKey,
+	}
+
 	m := model{
-		term:       pty.Term,
-		width:      pty.Window.Width,
-		height:     pty.Window.Height,
-		styles:     newStyles(true), // assume dark terminal
-		boardState: GenerateSudokuBoardState(""),
-		quitStyle:  lipgloss.NewStyle().Foreground(lipgloss.Color("8")),
+		term:   pty.Term,
+		width:  pty.Window.Width,
+		height: pty.Window.Height,
+		game:   InitializeGameBasedOnIdentity(iden),
 	}
 
 	// return m, []tea.ProgramOption{tea.WithAltScreen()} // moved to 'view' cmd
@@ -110,12 +118,11 @@ func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 }
 
 type model struct {
-	term       string
-	width      int
-	height     int
-	styles     styles
-	boardState SudokuBoardInteractionState
-	quitStyle  lipgloss.Style
+	term   string
+	width  int
+	height int
+	game   SudokuGameWrapperState
+	// quitStyle lipgloss.Style
 }
 
 func (m model) Init() tea.Cmd {
@@ -125,171 +132,35 @@ func (m model) Init() tea.Cmd {
 	// check what to do
 	// new user: show game selection screen
 	// existing user: enter game
+	// 1 sec delay
+	// time.Sleep(1 * time.Second)
+	// m.game.SetToFreshWrapper() // won't do anything because method doesn't have pointer of model, and can't?
 
 	return tea.Batch(
 		tea.RequestBackgroundColor,
 	)
 }
 
-type styles struct {
-	primary             lipgloss.Style
-	secondary           lipgloss.Style
-	tertiary            lipgloss.Style
-	accent              lipgloss.Style
-	errorForeground     lipgloss.Style
-	invertHighlight     lipgloss.Style
-	primaryInvert       lipgloss.Style
-	secondaryInvert     lipgloss.Style
-	tertiaryInvert      lipgloss.Style
-	accentInvert        lipgloss.Style
-	errorInvert         lipgloss.Style
-	lightHighlight      lipgloss.Style
-	darkHighlight       lipgloss.Style
-	errorHighlightUser  lipgloss.Style
-	errorHighlightGiven lipgloss.Style
-}
-
-func newStyles(bgIsDark bool) styles {
-
-	fmt.Println("newStyles called: is dark? ")
-	fmt.Println(bgIsDark)
-
-	lightDark := lipgloss.LightDark(!bgIsDark)
-
-	return styles{
-		primary: lipgloss.NewStyle().Foreground(lightDark(
-			lipgloss.Color("#ddd"), // on dark background
-			lipgloss.Color("#000"), // on light background
-		)),
-		secondary: lipgloss.NewStyle().Foreground(lightDark(
-			lipgloss.Color("#bbb"),
-			lipgloss.Color("#555"),
-		)),
-		tertiary: lipgloss.NewStyle().Foreground(lightDark(
-			lipgloss.Color("#555"),
-			lipgloss.Color("#ccc"),
-		)),
-		accent: lipgloss.NewStyle().Foreground(lightDark(
-			lipgloss.Color("#77f"),
-			lipgloss.Color("#33f"),
-		)),
-		errorForeground: lipgloss.NewStyle().Foreground(lightDark(
-			lipgloss.Color("#f00"),
-			lipgloss.Color("#f00"),
-		)),
-		invertHighlight: lipgloss.NewStyle().Background(lightDark(
-			lipgloss.Color("#fff"),
-			lipgloss.Color("#000"),
-		)),
-		primaryInvert: lipgloss.NewStyle().Foreground(lightDark(
-			lipgloss.Color("#000"),
-			lipgloss.Color("#fff"),
-		)),
-		secondaryInvert: lipgloss.NewStyle().Foreground(lightDark(
-			lipgloss.Color("#555"),
-			lipgloss.Color("#bbb"),
-		)),
-		tertiaryInvert: lipgloss.NewStyle().Foreground(lightDark(
-			lipgloss.Color("#ccc"),
-			lipgloss.Color("#555"),
-		)),
-		accentInvert: lipgloss.NewStyle().Foreground(lightDark(
-			lipgloss.Color("#33f"),
-			lipgloss.Color("#77f"),
-		)),
-		errorInvert: lipgloss.NewStyle().Foreground(lightDark(
-			lipgloss.Color("#f00"),
-			lipgloss.Color("#f00"),
-		)),
-		lightHighlight: lipgloss.NewStyle().Background(lightDark(
-			lipgloss.Color("#333"),
-			lipgloss.Color("#efefef"),
-		)),
-		darkHighlight: lipgloss.NewStyle().Background(lightDark(
-			lipgloss.Color("#777"),
-			lipgloss.Color("#bbb"),
-		)),
-		errorHighlightGiven: lipgloss.NewStyle().Background(lightDark(
-			lipgloss.Color("#f00"),
-			lipgloss.Color("#f00"),
-		)),
-		errorHighlightUser: lipgloss.NewStyle().Background(lightDark(
-			lipgloss.Color("#f00"),
-			lipgloss.Color("#f00"),
-		)).Foreground(lightDark(
-			lipgloss.Color("#900"),
-			lipgloss.Color("#900"),
-		)),
-	}
-}
-
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	fmt.Println("wish Update called")
+	var retur tea.Cmd = nil
 	switch msg := msg.(type) {
-	case tea.BackgroundColorMsg:
-		m.styles = newStyles(msg.IsDark())
 	case tea.WindowSizeMsg:
 		m.height = msg.Height
 		m.width = msg.Width
 		return m, tea.ClearScreen
+	case tea.BackgroundColorMsg:
+		m.game, retur = m.game.WrapperUpdate(msg)
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "ctrl+c":
 			return m, tea.Quit
-		// todo make nice keymap
-		case "up":
-			m.boardState.MoveCursorUp()
-		case "down":
-			m.boardState.MoveCursorDown()
-		case "left":
-			m.boardState.MoveCursorLeft()
-		case "right":
-			m.boardState.MoveCursorRight()
-		// todo: make this neater
-		case "1":
-			m.boardState.SetNumberAtCursor(1)
-		case "2":
-			m.boardState.SetNumberAtCursor(2)
-		case "3":
-			m.boardState.SetNumberAtCursor(3)
-		case "4":
-			m.boardState.SetNumberAtCursor(4)
-		case "5":
-			m.boardState.SetNumberAtCursor(5)
-		case "6":
-			m.boardState.SetNumberAtCursor(6)
-		case "7":
-			m.boardState.SetNumberAtCursor(7)
-		case "8":
-			m.boardState.SetNumberAtCursor(8)
-		case "9":
-			m.boardState.SetNumberAtCursor(9)
-
-		case "delete", "backspace":
-			m.boardState.SetNumberAtCursor(0)
 		}
-
+		m.game, retur = m.game.WrapperUpdate(msg)
 	}
-	return m, nil
+	return m, retur
 }
 
 func (m model) View() tea.View {
-	// todo: create sudoku board game and render
-
-	outStr := "Tadhg-doku\n\n"
-
-	// print random number
-	// randInt := rand.Int()
-	// randIntStr := strconv.Itoa(randInt)
-
-	// outStr += randIntStr + "\n"
-
-	// print board
-	outStr += RenderSudokuBoardState(m.boardState, m.styles)
-
-	outStr += "\n"
-
-	outStr += m.quitStyle.Render("Press q to quit")
-	v := tea.NewView(outStr)
-	v.AltScreen = true
-	return v
+	return m.game.WrapperView()
 }

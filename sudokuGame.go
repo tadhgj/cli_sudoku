@@ -311,39 +311,34 @@ func internalGenerateBlankSudokuBoardNotes() BoardGridNotes {
 	}
 }
 
-func internalGenerateSudokuBoard(difficulty string) BoardGrid {
-	if difficulty == "" {
-		return BoardGrid{
-			board: [9][9]int{
-				{5, 3, 0, 0, 7, 0, 0, 0, 0},
-				{6, 0, 0, 1, 9, 5, 0, 0, 0},
-				{0, 9, 8, 0, 0, 0, 0, 6, 0},
-				{8, 0, 0, 0, 6, 0, 0, 0, 3},
-				{4, 0, 0, 8, 0, 3, 0, 0, 1},
-				{7, 0, 0, 0, 2, 0, 0, 0, 6},
-				{0, 6, 0, 0, 0, 0, 2, 8, 0},
-				{0, 0, 0, 4, 1, 9, 0, 0, 5},
-				{0, 0, 0, 0, 8, 0, 0, 7, 9},
-			},
-		}
-	} else {
-		return BoardGrid{
-			board: [9][9]int{
-				{5, 3, 0, 0, 7, 0, 0, 0, 0},
-				{6, 0, 0, 1, 9, 5, 0, 0, 0},
-				{0, 9, 8, 0, 0, 0, 0, 6, 0},
-				{8, 0, 0, 0, 6, 0, 0, 0, 3},
-				{4, 0, 0, 8, 0, 3, 0, 0, 1},
-				{7, 0, 0, 0, 2, 0, 0, 0, 6},
-				{0, 6, 0, 0, 0, 0, 2, 8, 0},
-				{0, 0, 0, 4, 1, 9, 0, 0, 5},
-				{0, 0, 0, 0, 8, 0, 0, 7, 9},
-			},
-		}
+func internalGenerateSudokuBoard(difficulty Difficulty) BoardGrid {
+
+	switch difficulty {
+	case easy:
+		break
+	case normal:
+		break
+	case hard:
+		break
+	}
+
+	// stub
+	return BoardGrid{
+		board: [9][9]int{
+			{5, 3, 0, 0, 7, 0, 0, 0, 0},
+			{6, 0, 0, 1, 9, 5, 0, 0, 0},
+			{0, 9, 8, 0, 0, 0, 0, 6, 0},
+			{8, 0, 0, 0, 6, 0, 0, 0, 3},
+			{4, 0, 0, 8, 0, 3, 0, 0, 1},
+			{7, 0, 0, 0, 2, 0, 0, 0, 6},
+			{0, 6, 0, 0, 0, 0, 2, 8, 0},
+			{0, 0, 0, 4, 1, 9, 0, 0, 5},
+			{0, 0, 0, 0, 8, 0, 0, 7, 9},
+		},
 	}
 }
 
-func GenerateSudokuBoard(difficulty string) SudokuBoard {
+func GenerateSudokuBoard(difficulty Difficulty) SudokuBoard {
 	givenBoard := internalGenerateSudokuBoard(difficulty)
 
 	var numberOfDigitsPerRow [boardHeight][numberOfPossibleDigits]int
@@ -376,7 +371,7 @@ func GenerateSudokuBoard(difficulty string) SudokuBoard {
 	}
 }
 
-func GenerateSudokuBoardState(difficulty string) SudokuBoardInteractionState {
+func GenerateSudokuBoardState(difficulty Difficulty) SudokuBoardInteractionState {
 	return SudokuBoardInteractionState{
 		board:          GenerateSudokuBoard(difficulty),
 		selectedNumber: -1,
@@ -388,7 +383,7 @@ func GenerateSudokuBoardState(difficulty string) SudokuBoardInteractionState {
 	}
 }
 
-func RenderSudokuBoardState(state SudokuBoardInteractionState, styles styles) string {
+func (state SudokuBoardInteractionState) RenderSudokuBoardState(styles styles) string {
 
 	// in a console, some of the most basic and available styling you have available includes:
 	// underline
