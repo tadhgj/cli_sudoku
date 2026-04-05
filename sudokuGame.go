@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"charm.land/lipgloss/v2"
+	"github.com/jhunters/sudoku"
 )
 
 const boardSizeGeneric int = 9
@@ -312,30 +313,63 @@ func internalGenerateBlankSudokuBoardNotes() BoardGridNotes {
 }
 
 func internalGenerateSudokuBoard(difficulty Difficulty) BoardGrid {
+	// I am outsourcing my sudoku board generation because I fear that learning how to create the boards will take the fun out of solving the boards
+
+	var misscount int
 
 	switch difficulty {
+	case testeasy:
+		misscount = 3
 	case easy:
-		break
+		misscount = 20
 	case normal:
-		break
+		misscount = 30
 	case hard:
-		break
+		misscount = 40
+	}
+	// note that these numbers are not a very good determinor of the 'difficulty'
+	// of a puzzle but are much better than nothing for the time being
+
+	// random stub
+	// misscount = 50
+
+	// misscount limit is the max cell value squared, minus 5
+	// so with a max cell value of 9, the max misscount value is 81-5 which is 76
+	// the minimum is not enforced
+	// a miss count of 76 leaves literally 5 filled squares on the board
+	// so you'd probably need at least 9 filled squares to ensure a unique solution
+	// default value was 40
+	// will change this value with difficulty selection
+
+	// NewSudokuGenX(maxcellvalue, 'misscount')
+	sg, _ := sudoku.NewSudokuGenX(9, misscount)
+	// GenSudoku -> result, answer, err
+	result, _, _ := sg.GenSudoku()
+
+	// because I declared the board type to be [9][9]int and the generator returns [][]int
+	var resultCopy [9][9]int
+	for i := 0; i < 9; i++ {
+		for j := 0; j < 9; j++ {
+			resultCopy[i][j] = result[i][j]
+		}
 	}
 
-	// stub
-	return BoardGrid{
-		board: [9][9]int{
-			{5, 3, 0, 0, 7, 0, 0, 0, 0},
-			{6, 0, 0, 1, 9, 5, 0, 0, 0},
-			{0, 9, 8, 0, 0, 0, 0, 6, 0},
-			{8, 0, 0, 0, 6, 0, 0, 0, 3},
-			{4, 0, 0, 8, 0, 3, 0, 0, 1},
-			{7, 0, 0, 0, 2, 0, 0, 0, 6},
-			{0, 6, 0, 0, 0, 0, 2, 8, 0},
-			{0, 0, 0, 4, 1, 9, 0, 0, 5},
-			{0, 0, 0, 0, 8, 0, 0, 7, 9},
-		},
-	}
+	return BoardGrid{board: resultCopy}
+
+	// // placeholder until true generation
+	// return BoardGrid{
+	// 	board: [9][9]int{
+	// 		{5, 3, 0, 0, 7, 0, 0, 0, 0},
+	// 		{6, 0, 0, 1, 9, 5, 0, 0, 0},
+	// 		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+	// 		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+	// 		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+	// 		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+	// 		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+	// 		{0, 0, 0, 4, 1, 9, 0, 0, 5},
+	// 		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	// 	},
+	// }
 }
 
 func GenerateSudokuBoard(difficulty Difficulty) SudokuBoard {
