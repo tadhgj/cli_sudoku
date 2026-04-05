@@ -55,9 +55,9 @@ func (s *SudokuGameWrapperState) DifficultyUpdate(msg tea.Msg) {
 	case tea.KeyMsg:
 		switch msg.String() {
 
-		case "up":
+		case "up", "k":
 			s.difficultyInteraction.SelectPreviousDifficulty()
-		case "down":
+		case "down", "j":
 			s.difficultyInteraction.SelectNextDifficulty()
 
 		case "enter":
