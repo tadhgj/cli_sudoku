@@ -44,6 +44,10 @@ github.com/go-logfmt/logfmt v0.6.1 h1:4hvbpePJKnIzH1B+8OR/JPbTx37NktoI9LE2QZBBkv
 github.com/go-logfmt/logfmt v0.6.1/go.mod h1:EV2pOAQoZaT1ZXZbqDl5hrymndi4SY9ED9/z6CO0XAk=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
+github.com/jhunters/goassist v1.0.11 h1:GqmKhLHGheR9mhAvHw/Df1vSO38r4eXtzXkyhe9x8/g=
+github.com/jhunters/goassist v1.0.11/go.mod h1:xswAjXTwkXnAa/qoO0F47I6AFuFPIh77ywU0TumWLUc=
+github.com/jhunters/sudoku v1.2.2 h1:bJr0yzWzjxOJAZ6Hjn0k1BlImjOQ/LM96uXvUUEBLP4=
+github.com/jhunters/sudoku v1.2.2/go.mod h1:487J2+OwLSKhTMjzQaj3er4Sa6xzSiY16DQEbpWLuPY=
 github.com/lucasb-eyer/go-colorful v1.3.0 h1:2/yBRLdWBZKrf7gB40FoiKfAWYQ0lqNcbuQwVHXptag=
 github.com/lucasb-eyer/go-colorful v1.3.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/mattn/go-runewidth v0.0.19 h1:v++JhqYnZuu5jSKrk9RbgF5v4CGUjqRfBm05byFGLdw=
