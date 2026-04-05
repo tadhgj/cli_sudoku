@@ -48,7 +48,22 @@ func (s *SudokuGameWrapperState) GameUpdate(msg tea.Msg) {
 }
 
 func (s *SudokuGameWrapperState) GameView() tea.View {
-	v := tea.NewView(s.boardInteraction.RenderSudokuBoardState(s.styles))
+	viewText := s.boardInteraction.RenderSudokuBoardState(s.styles)
+
+	// render controls
+	// TODO: based on control scheme
+
+	viewText += "\n"
+	// viewText += s.ReturnControl("↑/↓", "row")
+	// viewText += "   "
+	viewText += s.ReturnControl("1-9", "set num at cursor")
+	viewText += "   "
+	// viewText += s.ReturnControl("backspace", "clear num at cursor")
+	viewText += s.ReturnControl("⌫", "clear num at cursor")
+	viewText += "   "
+	viewText += s.ReturnControl("q", "quit")
+
+	v := tea.NewView(viewText)
 	v.AltScreen = true
 	return v
 }

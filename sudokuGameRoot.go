@@ -60,6 +60,8 @@ type styles struct {
 	darkHighlight       lipgloss.Style
 	errorHighlightUser  lipgloss.Style
 	errorHighlightGiven lipgloss.Style
+	keybindKey          lipgloss.Style
+	keybindText         lipgloss.Style
 }
 
 func newStyles(bgIsDark bool) styles {
@@ -133,7 +135,22 @@ func newStyles(bgIsDark bool) styles {
 			lipgloss.Color("#900"),
 			lipgloss.Color("#900"),
 		)),
+		keybindKey: lipgloss.NewStyle().Bold(true).Foreground(lightDark(
+			lipgloss.Color("#fff"),
+			lipgloss.Color("#000"),
+		)),
+		keybindText: lipgloss.NewStyle().Foreground(lightDark(
+			lipgloss.Color("#ccc"),
+			lipgloss.Color("#666"),
+		)),
 	}
+}
+
+func (s SudokuGameWrapperState) ReturnControl(controlKeyText string, controlKeyDesc string) string {
+	returnText := s.styles.keybindKey.Render(controlKeyText)
+	returnText += " "
+	returnText += s.styles.keybindText.Render(controlKeyDesc)
+	return returnText
 }
 
 func (s SudokuGameWrapperState) WrapperUpdate(msg tea.Msg) (SudokuGameWrapperState, tea.Cmd) {
