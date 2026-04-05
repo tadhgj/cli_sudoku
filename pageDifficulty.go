@@ -5,13 +5,16 @@ import tea "charm.land/bubbletea/v2"
 // enumerate difficulties
 type Difficulty string
 
+// please update "Difficulties" array after editing this const list
 const (
-	easy   Difficulty = "Easy"
-	normal Difficulty = "Normal"
-	hard   Difficulty = "Hard"
+	testeasy Difficulty = "(FOR TESTING) Extremely easy"
+	easy     Difficulty = "Easy"
+	normal   Difficulty = "Normal"
+	hard     Difficulty = "Hard"
 )
 
-var Difficulties = []Difficulty{easy, normal, hard}
+var Difficulties = []Difficulty{testeasy, easy, normal, hard}
+
 var DifficultiesCount = len(Difficulties)
 
 type DifficultyInteractionState struct {
