@@ -29,6 +29,10 @@ func (s *SudokuGameWrapperState) DifficultySelected() {
 	// pull difficulty
 	difficulty := Difficulties[s.difficultyInteraction.selectedDifficultyIndex]
 
+	s.AbsoluteDifficultySelected(difficulty)
+}
+
+func (s *SudokuGameWrapperState) AbsoluteDifficultySelected(difficulty Difficulty) {
 	// generate board
 	s.boardInteraction = GenerateSudokuBoardState(difficulty)
 
@@ -59,6 +63,14 @@ func (s *SudokuGameWrapperState) DifficultyUpdate(msg tea.Msg) {
 			s.difficultyInteraction.SelectPreviousDifficulty()
 		case "down", "j":
 			s.difficultyInteraction.SelectNextDifficulty()
+
+		// // quick-picks
+		// case "e":
+		// 	s.AbsoluteDifficultySelected(easy)
+		// case "n":
+		// 	s.AbsoluteDifficultySelected(normal)
+		// case "h":
+		// 	s.AbsoluteDifficultySelected(hard)
 
 		case "enter":
 			s.DifficultySelected()
