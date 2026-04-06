@@ -142,7 +142,8 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	fmt.Println("wish Update called")
+	// fmt.Println("wish Update called")
+	// fmt.Println(msg)
 	var retur tea.Cmd = nil
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
