@@ -20,6 +20,9 @@ import (
 	"charm.land/wish/v2/bubbletea"
 	"charm.land/wish/v2/logging"
 	"github.com/charmbracelet/ssh"
+
+	// keyboard challenge
+	gossh "golang.org/x/crypto/ssh"
 )
 
 const (
@@ -39,16 +42,20 @@ func main() {
 		// wish.WithBannerHandler(func(ctx ssh.Context) string {
 		// 	return fmt.Sprintf(banner, ctx.User())
 		// }),
+		wish.WithPublicKeyAuth(func(ctx ssh.Context, key ssh.PublicKey) bool {
+			return true // we don't care what kind of key it is
+		}),
+
 		// todo: see if I want a password; eg. sudoku
 		// wish.WithPasswordAuth(func(ctx ssh.Context, password string) bool {
 		// 	return password == "asd123"
 		// }),
-		wish.WithPublicKeyAuth(func(ctx ssh.Context, key ssh.PublicKey) bool {
-			return key.Type() == "ssh-ed25519"
+
+		wish.WithKeyboardInteractiveAuth(func(_ ssh.Context, challenger gossh.KeyboardInteractiveChallenge) bool {
+			return true // we just want to let the user connect; we are using 'auth' simply as an identifier
 		}),
 
-		// actually, no, what I want is public key auth.
-		// your public key will be stored in a sqlite table matched to a user uuid
+		// the provided public key will be stored in a sqlite table matched to a user uuid
 		// there will be a users table with the uuids corresponding to
 		// - current game state
 		// keys and users will be removed after 90 days of inactivity
@@ -58,8 +65,6 @@ func main() {
 		// PUB KEY; TIMESTAMP; GAMESTATE (stuffed into a string? blob?)
 
 		// could support -t commands so you could say ssh <url> -t hard for a new hard game
-
-		// how to switch between screens?
 
 		wish.WithMiddleware(
 			bubbletea.Middleware(teaHandler),
@@ -99,11 +104,17 @@ func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 	pty, _, _ := s.Pty()
 
 	// deal with the ssh key here
-	yourKey := string(s.PublicKey().Marshal()[:])
-	fmt.Println(yourKey)
+	// only try this if ssh key is valid!
+	// yourKey := string(s.PublicKey().Marshal()[:])
+	// fmt.Println(yourKey)
+
+	// don't run until we know ssh key system works
+	// iden := SSHIdentity{
+	// 	sshKeyMarshalled: yourKey,
+	// }
 
 	iden := SSHIdentity{
-		sshKeyMarshalled: yourKey,
+		sshKeyMarshalled: "hello",
 	}
 
 	m := model{
@@ -112,6 +123,13 @@ func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 		height: pty.Window.Height,
 		game:   InitializeGameBasedOnIdentity(iden),
 	}
+
+	ctx := s.Context()
+	go func() {
+		<-ctx.Done()
+		// fires when a client disconnect
+		// TODO: stop their game timer; save their state to db
+	}()
 
 	// return m, []tea.ProgramOption{tea.WithAltScreen()} // moved to 'view' cmd
 	return m, []tea.ProgramOption{}
