@@ -3,6 +3,14 @@ package main
 
 import tea "charm.land/bubbletea/v2"
 
+func (s *SudokuGameWrapperState) BackToDifficulty() {
+	s.shownPage = difficultyPage
+}
+
+func (s *SudokuGameWrapperState) GameToPause() {
+	s.shownPage = pausePage
+}
+
 func (s *SudokuGameWrapperState) GameUpdate(msg tea.Msg) {
 
 	switch msg := msg.(type) {
@@ -39,9 +47,13 @@ func (s *SudokuGameWrapperState) GameUpdate(msg tea.Msg) {
 		case "delete", "backspace":
 			s.boardInteraction.SetNumberAtCursor(0)
 
-			// exit back to difficulty screen
-			// case "esc", "p":
-			// 	s.shownPage = loadingPage
+		// exit back to difficulty screen
+		case "esc":
+			s.BackToDifficulty()
+
+		// pause
+		case "p":
+			s.GameToPause()
 		}
 
 	}
@@ -52,7 +64,6 @@ func (s *SudokuGameWrapperState) GameView() tea.View {
 
 	// render controls
 	// TODO: based on control scheme
-
 	viewText += "\n"
 
 	gameArrowControl := Control{
