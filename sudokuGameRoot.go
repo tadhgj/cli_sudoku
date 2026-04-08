@@ -2,7 +2,7 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -66,8 +66,8 @@ type styles struct {
 
 func newStyles(bgIsDark bool) styles {
 
-	fmt.Println("newStyles called: is dark? ")
-	fmt.Println(bgIsDark)
+	// fmt.Println("newStyles called: is dark? ")
+	// fmt.Println(bgIsDark)
 
 	lightDark := lipgloss.LightDark(!bgIsDark)
 
