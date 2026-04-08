@@ -435,13 +435,72 @@ func (state SudokuBoardInteractionState) RenderSudokuBoardState(styles styles) s
 
 	var result string
 
+	var heightOffset int
+	var widthOffset int
+	// IF we have 'center of universe' setting on...
+	// calculate offset based off character
+	// heightOffset = 10
+	// widthOffset = 10
+
+	// x123|456|789x
+	// x 1 2 3 | 4 5 6 | 7 8 9 x
+	// x-------+
+	// cursor.horiz = 8 widthOffset = 0
+	// cursor.horiz = 7 widthOffset = 2
+	// 25? wide?
+
+	//     ,
+	//  123 cursor.vert = 0 (heightOffset = 10)
+	//  123 cursor.vert = 1 (heightOffset = 9)
+	//  123 cursor.vert = 2 (heightOffset = 8)
+	//  ---
+	//  123 (heightOffset = 6)
+	//  123 (heightOffset = 5)
+	//  123 (heightOffset = 4)
+	//  ---
+	//  123 (heightOffset = 2)
+	//  123 (heightOffset = 1)
+	//  123 cursor.vert = 8 (heightOffset = 0)
+	//     '
+	// 13 tall
+
+	if true {
+		heightOffset = (10 - cursor.vert) - (cursor.vert / 3)
+		widthOffset = (10-(cursor.horiz))*2 - (cursor.horiz/3)*2
+
+	}
+
+	var heightOffsetString string
+	var widthOffsetString string
+	var debugwidthOffsetString string
+	// calc height offset
+	for i := 0; i < heightOffset; i++ {
+		heightOffsetString += "↓\n"
+	}
+	// calc width offset
+	for i := 0; i < widthOffset; i++ {
+		if i%2 == 0 {
+			debugwidthOffsetString += "→"
+		}
+		if i%2 == 1 {
+			debugwidthOffsetString += " "
+		}
+		widthOffsetString += " "
+	}
+
+	result += heightOffsetString
+
 	// top decoration
+
+	result += debugwidthOffsetString
 	result += "       ,       ,       \n"
 
 	// for each row...
 	for i := 0; i < boardHeight; i++ {
 		isSameRowAsCursor := i == cursor.vert
 
+		// apply width offset
+		result += widthOffsetString
 		// spacer at beginning of row
 		result += " "
 
@@ -535,11 +594,13 @@ func (state SudokuBoardInteractionState) RenderSudokuBoardState(styles styles) s
 
 		// spacer
 		if i != boardHeight-1 && i%3 == 2 {
+			result += widthOffsetString
 			result += "-------+-------+-------\n"
 		}
 	}
 
 	// bottom
+	result += widthOffsetString
 	result += "       '       '       \n"
 
 	// print remaining numbers
