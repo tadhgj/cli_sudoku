@@ -8,13 +8,13 @@ func (s *SudokuGameWrapperState) GameUpdate(msg tea.Msg) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "up":
+		case "up", "k":
 			s.boardInteraction.MoveCursorUp()
-		case "down":
+		case "down", "j":
 			s.boardInteraction.MoveCursorDown()
-		case "left":
+		case "left", "h":
 			s.boardInteraction.MoveCursorLeft()
-		case "right":
+		case "right", "l":
 			s.boardInteraction.MoveCursorRight()
 		// todo: make this neater
 		case "1":
