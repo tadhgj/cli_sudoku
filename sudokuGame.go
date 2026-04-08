@@ -315,13 +315,14 @@ func GenerateSudokuBoardState(difficulty Difficulty) SudokuBoardInteractionState
 	}
 }
 
-func (state SudokuBoardInteractionState) RenderSudokuBoardState(styles styles) string {
+func (s SudokuGameWrapperState) RenderSudokuBoardState(styles styles) string {
 
 	// in a console, some of the most basic and available styling you have available includes:
 	// underline
 	// highlighting
 	// a 'light' text color
 
+	state := s.boardInteraction
 	board := state.board
 	cursor := state.cursor
 
@@ -362,10 +363,9 @@ func (state SudokuBoardInteractionState) RenderSudokuBoardState(styles styles) s
 	//     '
 	// 13 tall
 
-	if true {
+	if s.userOptions.centerOfUniverseRenderingStyle {
 		heightOffset = (10 - cursor.vert) - (cursor.vert / 3)
 		widthOffset = (10-(cursor.horiz))*2 - (cursor.horiz/3)*2
-
 	}
 
 	var heightOffsetString string

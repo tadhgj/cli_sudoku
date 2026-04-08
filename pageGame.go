@@ -60,7 +60,7 @@ func (s *SudokuGameWrapperState) GameUpdate(msg tea.Msg) {
 }
 
 func (s *SudokuGameWrapperState) GameView() tea.View {
-	viewText := s.boardInteraction.RenderSudokuBoardState(s.styles)
+	viewText := s.RenderSudokuBoardState(s.styles)
 
 	// render controls
 	// TODO: based on control scheme

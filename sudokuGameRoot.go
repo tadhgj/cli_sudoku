@@ -3,6 +3,7 @@ package main
 
 import (
 	// "fmt"
+	// "time"
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -20,14 +21,33 @@ const (
 
 type SudokuGameWrapperState struct {
 	boardInteraction      SudokuBoardInteractionState
+	userOptions           UserOptions
 	difficultyInteraction DifficultyInteractionState
 	shownPage             page
-	styles                styles
+	// timeSpentPlaying       time.Duration
+	// lastSessionEnded       time.Time
+	// currentSessionStarted  time.Time
+	// isCurrentSessionActive bool
+	// currentSessionEnded    time.Time
+	styles styles
+}
+
+type UserOptions struct {
+	loopCursorAroundEdges          bool
+	centerOfUniverseRenderingStyle bool
+}
+
+func DefaultUserOptions() UserOptions {
+	return UserOptions{
+		loopCursorAroundEdges:          false,
+		centerOfUniverseRenderingStyle: true,
+	}
 }
 
 func NewWrapper() SudokuGameWrapperState {
 	return SudokuGameWrapperState{
 		boardInteraction:      SudokuBoardInteractionState{},
+		userOptions:           DefaultUserOptions(),
 		difficultyInteraction: DifficultyInteractionState{},
 		shownPage:             difficultyPage,
 		styles:                newStyles(true), // assume dark terminal until we are told otherwise
