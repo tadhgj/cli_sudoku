@@ -146,11 +146,35 @@ func newStyles(bgIsDark bool) styles {
 	}
 }
 
+type Control struct {
+	keys string
+	desc string
+}
+
+func QuitControl() Control {
+	return Control{
+		keys: "q",
+		desc: "quit",
+	}
+}
+
 func (s SudokuGameWrapperState) ReturnControl(controlKeyText string, controlKeyDesc string) string {
 	returnText := s.styles.keybindKey.Render(controlKeyText)
 	returnText += " "
 	returnText += s.styles.keybindText.Render(controlKeyDesc)
 	return returnText
+}
+
+func (s SudokuGameWrapperState) RenderControlList(ilist []Control) string {
+	var outstr string
+	controlsCount := len(ilist)
+	for i := 0; i < controlsCount; i++ {
+		outstr += s.ReturnControl(ilist[i].keys, ilist[i].desc)
+		if i != (controlsCount - 1) {
+			outstr += "   "
+		}
+	}
+	return outstr
 }
 
 func (s SudokuGameWrapperState) WrapperUpdate(msg tea.Msg) (SudokuGameWrapperState, tea.Cmd) {

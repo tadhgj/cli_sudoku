@@ -54,14 +54,29 @@ func (s *SudokuGameWrapperState) GameView() tea.View {
 	// TODO: based on control scheme
 
 	viewText += "\n"
-	// viewText += s.ReturnControl("↑/↓", "row")
-	// viewText += "   "
-	viewText += s.ReturnControl("1-9", "set num at cursor")
-	viewText += "   "
-	// viewText += s.ReturnControl("backspace", "clear num at cursor")
-	viewText += s.ReturnControl("⌫", "clear num at cursor")
-	viewText += "   "
-	viewText += s.ReturnControl("q", "quit")
+
+	gameArrowControl := Control{
+		keys: "↑/↓/←/→",
+		desc: "cursor",
+	}
+	gameSetNumControl := Control{
+		keys: "1-9",
+		desc: "set",
+	}
+	gameClearNumControl := Control{
+		keys: "backsp",
+		desc: "clear",
+	}
+	gameEscToDiffControl := Control{
+		keys: "esc",
+		desc: "back to diff.",
+	}
+	gameEscToPauseControl := Control{
+		keys: "p",
+		desc: "pause",
+	}
+
+	viewText += s.RenderControlList([]Control{gameArrowControl, gameSetNumControl, gameClearNumControl, gameEscToDiffControl, gameEscToPauseControl, QuitControl()})
 
 	v := tea.NewView(viewText)
 	v.AltScreen = true

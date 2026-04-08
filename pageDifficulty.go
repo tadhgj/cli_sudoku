@@ -104,12 +104,15 @@ func (s *SudokuGameWrapperState) DifficultyView() tea.View {
 	}
 
 	// print controls
-	difficultyText += "\n"
-	difficultyText += s.ReturnControl("↑/↓", "difficulty")
-	difficultyText += "   "
-	difficultyText += s.ReturnControl("enter", "select")
-	difficultyText += "   "
-	difficultyText += s.ReturnControl("q", "quit")
+	difficultyArrowControl := Control{
+		keys: "↑/↓",
+		desc: "difficulty",
+	}
+	difficultySelectControl := Control{
+		keys: "enter",
+		desc: "select",
+	}
+	difficultyText += s.RenderControlList([]Control{difficultyArrowControl, difficultySelectControl, QuitControl()})
 
 	v := tea.NewView(difficultyText)
 	v.AltScreen = true
