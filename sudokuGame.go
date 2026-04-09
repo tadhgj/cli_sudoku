@@ -194,7 +194,6 @@ type SudokuBoardInteractionState struct {
 	board          SudokuBoard
 	selectedNumber int
 	cursor         BoardPosition
-	wrap           bool // should cursor wrap over
 	toggle         bool // should entering 5 in same square clear square
 }
 
@@ -311,7 +310,6 @@ func GenerateSudokuBoardState(difficulty Difficulty) SudokuBoardInteractionState
 			horiz: 0,
 			vert:  0,
 		},
-		wrap: false,
 	}
 }
 
