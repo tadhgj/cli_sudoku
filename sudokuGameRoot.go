@@ -17,6 +17,7 @@ const (
 	difficultyPage             // starting page
 	gamePage
 	pausePage
+	winPage
 )
 
 type SudokuGameWrapperState struct {
@@ -213,6 +214,8 @@ func (s SudokuGameWrapperState) WrapperUpdate(msg tea.Msg) (SudokuGameWrapperSta
 			s.GameUpdate(msg)
 		case pausePage:
 			s.PauseUpdate(msg)
+		case winPage:
+			s.WinUpdate(msg)
 		}
 		switch msg.String() {
 		case "q":
@@ -235,6 +238,8 @@ func (s SudokuGameWrapperState) WrapperView() tea.View {
 		return s.GameView()
 	case pausePage:
 		return s.PauseView()
+	case winPage:
+		return s.WinView()
 	}
 
 	var contentString string

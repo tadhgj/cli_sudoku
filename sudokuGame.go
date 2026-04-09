@@ -832,29 +832,67 @@ func (board *SudokuBoardInteractionState) CheckForErrorsForMove(existingValue in
 	}
 }
 
-func (board *SudokuBoardInteractionState) SetNumberAtCursor(input int) {
-	// check if givenBoard is blank there; we can't edit 'set' positions
-	if board.board.givenBoard.GetValueAt(board.cursor) != 0 {
-		return
+func (s *SudokuGameWrapperState) checkForWin() {
+	// if user errors is empty and numbers are full call it a day
+	board := s.boardInteraction
+	anyError := false
+	for rowIndex := 0; rowIndex < boardHeight; rowIndex++ {
+		for colIndex := 0; colIndex < boardWidth; colIndex++ {
+
+			if board.board.invalidEntries.board[rowIndex][colIndex] {
+				anyError = true
+			}
+			if anyError {
+				break
+			}
+
+			if board.board.GetAnyValueAt(BoardPosition{horiz: colIndex, vert: rowIndex}) == 0 {
+				anyError = true
+			}
+			if anyError {
+				break
+			}
+		}
 	}
-	// check if it's the same as the cursor. don't do any logic for 'change 3 to 3'
-	if board.board.userEntries.GetValueAt(board.cursor) == input {
+
+	if !anyError {
+		// call win stuff
+		s.shownPage = winPage
+	}
+}
+
+// returns true if number at cursor has changed value, necessitating a check for new error states
+func (s *SudokuGameWrapperState) SetNumberAtCursor(input int) {
+	// check if givenBoard is blank there; we can't edit 'set' positions
+	if s.boardInteraction.board.givenBoard.GetValueAt(s.boardInteraction.cursor) != 0 {
 		return
 	}
 
-	prevInput := board.board.userEntries.GetValueAt(board.cursor)
-	board.board.userEntries.setNumberAtPos(input, board.cursor, board.toggle)
-	board.CheckForErrorsForMove(prevInput, input, board.cursor)
+	// check if it's the same as the cursor. don't do any logic for 'change 3 to 3'
+	if s.boardInteraction.board.userEntries.GetValueAt(s.boardInteraction.cursor) == input {
+		return
+	}
+
+	prevInput := s.boardInteraction.board.userEntries.GetValueAt(s.boardInteraction.cursor)
+	wasChanged := s.boardInteraction.board.userEntries.setNumberAtPos(input, s.boardInteraction.cursor, s.boardInteraction.toggle)
+	if !wasChanged {
+		return
+	}
+
+	s.boardInteraction.CheckForErrorsForMove(prevInput, input, s.boardInteraction.cursor)
 
 	numberIndex := input - 1
 	if numberIndex >= 0 {
-		board.board.numberOfDigitsTotal[numberIndex]++
+		s.boardInteraction.board.numberOfDigitsTotal[numberIndex]++
 	}
 
 	prevNumberIndex := prevInput - 1
 	if prevNumberIndex >= 0 {
-		board.board.numberOfDigitsTotal[prevNumberIndex]--
+		s.boardInteraction.board.numberOfDigitsTotal[prevNumberIndex]--
 	}
+
+	// check for win state
+	s.checkForWin()
 }
 
 func (s *SudokuGameWrapperState) MoveCursorLeft() {

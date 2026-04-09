@@ -27,26 +27,26 @@ func (s *SudokuGameWrapperState) GameUpdate(msg tea.Msg) {
 		// case "shift+up", "K": // doesn't work in Terminal.app, the default mac terminal
 		// todo: make this neater
 		case "1":
-			s.boardInteraction.SetNumberAtCursor(1)
+			s.SetNumberAtCursor(1)
 		case "2":
-			s.boardInteraction.SetNumberAtCursor(2)
+			s.SetNumberAtCursor(2)
 		case "3":
-			s.boardInteraction.SetNumberAtCursor(3)
+			s.SetNumberAtCursor(3)
 		case "4":
-			s.boardInteraction.SetNumberAtCursor(4)
+			s.SetNumberAtCursor(4)
 		case "5":
-			s.boardInteraction.SetNumberAtCursor(5)
+			s.SetNumberAtCursor(5)
 		case "6":
-			s.boardInteraction.SetNumberAtCursor(6)
+			s.SetNumberAtCursor(6)
 		case "7":
-			s.boardInteraction.SetNumberAtCursor(7)
+			s.SetNumberAtCursor(7)
 		case "8":
-			s.boardInteraction.SetNumberAtCursor(8)
+			s.SetNumberAtCursor(8)
 		case "9":
-			s.boardInteraction.SetNumberAtCursor(9)
+			s.SetNumberAtCursor(9)
 
 		case "delete", "backspace":
-			s.boardInteraction.SetNumberAtCursor(0)
+			s.SetNumberAtCursor(0)
 
 		// exit back to difficulty screen
 		case "esc":
