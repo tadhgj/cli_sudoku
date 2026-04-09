@@ -307,8 +307,8 @@ func GenerateSudokuBoardState(difficulty Difficulty) SudokuBoardInteractionState
 		board:          GenerateSudokuBoard(difficulty),
 		selectedNumber: -1,
 		cursor: BoardPosition{
-			horiz: 0,
-			vert:  0,
+			horiz: 4,
+			vert:  4,
 		},
 	}
 }
