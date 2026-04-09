@@ -12,8 +12,8 @@ func (s *SudokuGameWrapperState) BackToGame() {
 	s.shownPage = gamePage
 }
 
-func (s *SudokuGameWrapperState) ToggleCenterOfUniverse() {
-	s.userOptions.centerOfUniverseRenderingStyle = !s.userOptions.centerOfUniverseRenderingStyle
+func (s *SudokuGameWrapperState) ToggleRenderingStyle() {
+	s.userOptions.selectedRenderingStyleIndex = (s.userOptions.selectedRenderingStyleIndex + 1) % RenderingStylesCount
 }
 
 func (s *SudokuGameWrapperState) ToggleCursorWrap() {
@@ -26,8 +26,8 @@ func (s *SudokuGameWrapperState) PauseUpdate(msg tea.Msg) {
 	case tea.KeyMsg:
 		switch msg.String() {
 
-		case "c":
-			s.ToggleCenterOfUniverse()
+		case "s":
+			s.ToggleRenderingStyle()
 		case "w":
 			s.ToggleCursorWrap()
 
@@ -59,8 +59,8 @@ func (s *SudokuGameWrapperState) PauseView() tea.View {
 	// print user settings
 	pauseText += "User Settings:\n"
 
-	pauseText += "Center of Universe (press c to toggle): "
-	pauseText += strconv.FormatBool(s.userOptions.centerOfUniverseRenderingStyle)
+	pauseText += "Rendering Style (press s to change): "
+	pauseText += RenderingStyleNames[s.userOptions.selectedRenderingStyleIndex]
 	pauseText += "\n"
 
 	pauseText += "Wrap cursor (press w to toggle): "

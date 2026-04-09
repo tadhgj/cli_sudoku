@@ -34,14 +34,28 @@ type SudokuGameWrapperState struct {
 }
 
 type UserOptions struct {
-	loopCursorAroundEdges          bool
-	centerOfUniverseRenderingStyle bool
+	loopCursorAroundEdges       bool
+	selectedRenderingStyleIndex int
 }
+
+type renderingStyle int
+
+const (
+	bogStandard renderingStyle = iota
+	centeredCursor
+	infiniteBoard // not yet implemented
+)
+
+var RenderingStyles = []renderingStyle{bogStandard, centeredCursor, infiniteBoard}
+var RenderingStyleNames = []string{"Standard", "Centered Cursor", "Infinite Board"}
+
+// it is my opinion that 'loop' and 'centered cursor' don't work that well together but it's more complicated to try to tie those two settings together
+var RenderingStylesCount = len(RenderingStyles)
 
 func DefaultUserOptions() UserOptions {
 	return UserOptions{
-		loopCursorAroundEdges:          false,
-		centerOfUniverseRenderingStyle: true,
+		loopCursorAroundEdges:       true,
+		selectedRenderingStyleIndex: int(bogStandard),
 	}
 }
 

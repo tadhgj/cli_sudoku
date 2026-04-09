@@ -334,6 +334,8 @@ func (s SudokuGameWrapperState) RenderSudokuBoardState(styles styles) string {
 
 	var heightOffset int
 	var widthOffset int
+	var rowStartOffset int
+	var columnStartOffset int
 	// IF we have 'center of universe' setting on...
 	// calculate offset based off character
 	// heightOffset = 10
@@ -361,10 +363,17 @@ func (s SudokuGameWrapperState) RenderSudokuBoardState(styles styles) string {
 	//     '
 	// 13 tall
 
-	if s.userOptions.centerOfUniverseRenderingStyle {
+	if s.userOptions.selectedRenderingStyleIndex == int(centeredCursor) {
 		heightOffset = (10 - cursor.vert) - (cursor.vert / 3)
 		widthOffset = (10-(cursor.horiz))*2 - (cursor.horiz/3)*2
+	} else if s.userOptions.selectedRenderingStyleIndex == int(infiniteBoard) {
+		heightOffset = 0
+		widthOffset = 0
+
+		columnStartOffset = (6 + ((cursor.vert / 3) * 3)) % boardHeight
+		rowStartOffset = (6 + ((cursor.horiz / 3) * 3)) % boardWidth
 	}
+	// else if selrenderstyle is the infinite centered one, set the height/width offset fixed and add the startingRow/startingColumn offsets
 
 	var heightOffsetString string
 	var widthOffsetString string
@@ -394,7 +403,10 @@ func (s SudokuGameWrapperState) RenderSudokuBoardState(styles styles) string {
 	result += "       ,       ,       \n"
 
 	// for each row...
-	for i := 0; i < boardHeight; i++ {
+	for ri := 0; ri < boardHeight; ri++ {
+
+		i := (columnStartOffset + ri) % boardHeight
+
 		isSameRowAsCursor := i == cursor.vert
 
 		// apply width offset
@@ -403,7 +415,9 @@ func (s SudokuGameWrapperState) RenderSudokuBoardState(styles styles) string {
 		result += " "
 
 		// for each item in row...
-		for j := 0; j < boardWidth; j++ {
+		for rj := 0; rj < boardWidth; rj++ {
+
+			j := (rowStartOffset + rj) % boardHeight
 
 			cPos := BoardPosition{horiz: j, vert: i}
 
@@ -478,7 +492,7 @@ func (s SudokuGameWrapperState) RenderSudokuBoardState(styles styles) string {
 			}
 
 			// spacer
-			if j != boardWidth-1 {
+			if rj != boardWidth-1 {
 				if j%3 == 2 {
 					result += " | "
 				} else if isSameRowAsCursor || isSameSquareAsCursor {
@@ -491,7 +505,7 @@ func (s SudokuGameWrapperState) RenderSudokuBoardState(styles styles) string {
 		result += "\n"
 
 		// spacer
-		if i != boardHeight-1 && i%3 == 2 {
+		if ri != boardHeight-1 && ri%3 == 2 {
 			result += widthOffsetString
 			result += "-------+-------+-------\n"
 		}
