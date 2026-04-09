@@ -16,6 +16,10 @@ func (s *SudokuGameWrapperState) ToggleCenterOfUniverse() {
 	s.userOptions.centerOfUniverseRenderingStyle = !s.userOptions.centerOfUniverseRenderingStyle
 }
 
+func (s *SudokuGameWrapperState) ToggleCursorWrap() {
+	s.userOptions.loopCursorAroundEdges = !s.userOptions.loopCursorAroundEdges
+}
+
 func (s *SudokuGameWrapperState) PauseUpdate(msg tea.Msg) {
 	// if keypress is s
 	switch msg := msg.(type) {
@@ -24,6 +28,8 @@ func (s *SudokuGameWrapperState) PauseUpdate(msg tea.Msg) {
 
 		case "c":
 			s.ToggleCenterOfUniverse()
+		case "w":
+			s.ToggleCursorWrap()
 
 		case "p":
 			s.BackToGame()
@@ -55,6 +61,10 @@ func (s *SudokuGameWrapperState) PauseView() tea.View {
 
 	pauseText += "Center of Universe (press c to toggle): "
 	pauseText += strconv.FormatBool(s.userOptions.centerOfUniverseRenderingStyle)
+	pauseText += "\n"
+
+	pauseText += "Wrap cursor (press w to toggle): "
+	pauseText += strconv.FormatBool(s.userOptions.loopCursorAroundEdges)
 	pauseText += "\n"
 
 	pauseText += "\n"

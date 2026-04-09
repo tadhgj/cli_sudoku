@@ -569,8 +569,8 @@ func (cursor *BoardPosition) setCursor(pos BoardPosition, wrap bool) {
 }
 
 // public
-func (board *SudokuBoardInteractionState) SetCursor(pos BoardPosition) {
-	board.cursor.setCursor(pos, board.wrap)
+func (s *SudokuGameWrapperState) SetCursor(pos BoardPosition) {
+	s.boardInteraction.cursor.setCursor(pos, s.userOptions.loopCursorAroundEdges)
 }
 
 func (board *BoardGrid) setNumberAtPos(input int, pos BoardPosition, toggle bool) {
@@ -857,32 +857,31 @@ func (board *SudokuBoardInteractionState) SetNumberAtCursor(input int) {
 	}
 }
 
-func (board *SudokuBoardInteractionState) MoveCursorLeft() {
-	board.SetCursor(
-		BoardPosition{
-			horiz: board.cursor.horiz - 1,
-			vert:  board.cursor.vert,
-		},
+func (s *SudokuGameWrapperState) MoveCursorLeft() {
+	s.SetCursor(BoardPosition{
+		horiz: s.boardInteraction.cursor.horiz - 1,
+		vert:  s.boardInteraction.cursor.vert,
+	},
 	)
 }
 
-func (board *SudokuBoardInteractionState) MoveCursorRight() {
-	board.SetCursor(BoardPosition{
-		horiz: board.cursor.horiz + 1,
-		vert:  board.cursor.vert,
+func (s *SudokuGameWrapperState) MoveCursorRight() {
+	s.SetCursor(BoardPosition{
+		horiz: s.boardInteraction.cursor.horiz + 1,
+		vert:  s.boardInteraction.cursor.vert,
 	})
 }
 
-func (board *SudokuBoardInteractionState) MoveCursorUp() {
-	board.SetCursor(BoardPosition{
-		horiz: board.cursor.horiz,
-		vert:  board.cursor.vert - 1,
+func (s *SudokuGameWrapperState) MoveCursorUp() {
+	s.SetCursor(BoardPosition{
+		horiz: s.boardInteraction.cursor.horiz,
+		vert:  s.boardInteraction.cursor.vert - 1,
 	})
 }
 
-func (board *SudokuBoardInteractionState) MoveCursorDown() {
-	board.SetCursor(BoardPosition{
-		horiz: board.cursor.horiz,
-		vert:  board.cursor.vert + 1,
+func (s *SudokuGameWrapperState) MoveCursorDown() {
+	s.SetCursor(BoardPosition{
+		horiz: s.boardInteraction.cursor.horiz,
+		vert:  s.boardInteraction.cursor.vert + 1,
 	})
 }

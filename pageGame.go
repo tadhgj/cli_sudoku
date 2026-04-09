@@ -17,13 +17,14 @@ func (s *SudokuGameWrapperState) GameUpdate(msg tea.Msg) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "up", "k":
-			s.boardInteraction.MoveCursorUp()
+			s.MoveCursorUp()
 		case "down", "j":
-			s.boardInteraction.MoveCursorDown()
+			s.MoveCursorDown()
 		case "left", "h":
-			s.boardInteraction.MoveCursorLeft()
+			s.MoveCursorLeft()
 		case "right", "l":
-			s.boardInteraction.MoveCursorRight()
+			s.MoveCursorRight()
+		// case "shift+up", "K": // doesn't work in Terminal.app, the default mac terminal
 		// todo: make this neater
 		case "1":
 			s.boardInteraction.SetNumberAtCursor(1)
