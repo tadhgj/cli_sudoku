@@ -373,12 +373,14 @@ func (s SudokuGameWrapperState) RenderSudokuBoardState(styles styles) string {
 	var debugwidthOffsetString string
 	// calc height offset
 	for i := 0; i < heightOffset; i++ {
-		heightOffsetString += "↓\n"
+		// heightOffsetString += "↓\n"
+		heightOffsetString += "\n"
 	}
 	// calc width offset
 	for i := 0; i < widthOffset; i++ {
 		if i%2 == 0 {
-			debugwidthOffsetString += "→"
+			// debugwidthOffsetString += "→"
+			debugwidthOffsetString += " "
 		}
 		if i%2 == 1 {
 			debugwidthOffsetString += " "
