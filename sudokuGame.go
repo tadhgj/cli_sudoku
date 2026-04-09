@@ -585,18 +585,27 @@ func (s *SudokuGameWrapperState) SetCursor(pos BoardPosition) {
 	s.boardInteraction.cursor.setCursor(pos, s.userOptions.loopCursorAroundEdges)
 }
 
-func (board *BoardGrid) setNumberAtPos(input int, pos BoardPosition, toggle bool) {
-	// check if int is valid is valid
+func (board *BoardGrid) setNumberAtPos(input int, pos BoardPosition, toggle bool) bool {
+	// check if input number is valid
 	if input < perSquareMin || input > perSquareMax {
-		return
+		return false
 	}
+
+	// check if already set to this value
+	if board.GetValueAt(pos) == input {
+		return false
+	}
+
 	// check if cursor position is valid
-	// TODO
-	if input != 0 && toggle && board.GetValueAt(pos) == input {
-		board.SetValueAt(pos, input)
-	} else {
-		board.SetValueAt(pos, input)
-	}
+	// TODO: do something different based on toggle setting
+	// if input != 0 && toggle && board.GetValueAt(pos) == input {
+	// 	board.SetValueAt(pos, input)
+	// } else {
+	// 	board.SetValueAt(pos, input)
+	// }
+
+	board.SetValueAt(pos, input)
+	return true
 }
 
 // func (board *SudokuBoardInteractionState) CheckForAllInvalidPositions {
